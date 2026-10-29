@@ -21,6 +21,8 @@ from hw1_imitation.data import (
 )
 from hw1_imitation.model import build_policy, PolicyType
 from hw1_imitation.evaluation import Logger
+from hw1_imitation.evaluation import evaluate_policy
+
 
 LOGDIR_PREFIX = "exp"
 
@@ -31,7 +33,7 @@ class TrainConfig:
     data_dir: Path = Path("data")
 
     # The policy type -- either MSE or flow.
-    policy_type: PolicyType = "mse"
+    policy_type: PolicyType = "flow"
     # The number of denoising steps to use for the flow policy (has no effect for the MSE policy).
     flow_num_steps: int = 10
     # The action chunk size.
@@ -128,7 +130,23 @@ def run_training(config: TrainConfig) -> None:
     logger = Logger(log_dir)
 
     ### TODO: PUT YOUR MAIN TRAINING LOOP HERE ###
-
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
+    step = 0
+    for epoch in range(config.num_epochs):
+        for batch_idx, (state, action_chunk) in enumerate(loader):
+            step = epoch * len(loader) + batch_idx
+            state = state.to(device)
+            action_chunk = action_chunk.to(device)
+            optimizer.zero_grad()
+            loss = model.compute_loss(state, action_chunk)
+            loss.backward()
+            optimizer.step()
+            if step % config.log_interval == 0:
+                logger.log({"train/loss": loss.item()}, step=step)
+            if step % config.eval_interval == 0:
+                evaluate_policy(model, normalizer, device, config.chunk_size, config.video_size, config.num_video_episodes, config.flow_num_steps, step=step, logger=logger)
+                model.train()
+    
     logger.dump_for_grading()
 
 
