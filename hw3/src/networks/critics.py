@@ -35,13 +35,14 @@ class DQNCritic(nn.Module):
 class StateActionCritic(nn.Module):
     """Critic network for SAC. Maps (state, action) pairs to Q-values."""
 
-    def __init__(self, ob_dim, ac_dim, n_layers, size):
+    def __init__(self, ob_dim, ac_dim, n_layers, size, hidden_activation="tanh"):
         super().__init__()
         self.net = ptu.build_mlp(
             input_size=ob_dim + ac_dim,
             output_size=1,
             n_layers=n_layers,
             size=size,
+            activation=hidden_activation,
         )
 
     def forward(self, obs, acs):

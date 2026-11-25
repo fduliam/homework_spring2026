@@ -46,6 +46,7 @@ def sac_config(
     # Automatic temperature tuning (Section 3.6)
     auto_tune_temperature: bool = False,
     alpha_learning_rate: float = 3e-4,
+    hidden_activation: str = "tanh",
 ):
     def make_critic(observation_shape: Tuple[int, ...], action_dim: int) -> nn.Module:
         return StateActionCritic(
@@ -53,6 +54,7 @@ def sac_config(
             ac_dim=action_dim,
             n_layers=num_layers,
             size=hidden_size,
+            hidden_activation=hidden_activation,
         )
 
     def make_actor(observation_shape: Tuple[int, ...], action_dim: int) -> nn.Module:
@@ -64,6 +66,7 @@ def sac_config(
                 discrete=False,
                 n_layers=num_layers,
                 layer_size=hidden_size,
+                hidden_activation=hidden_activation,
                 use_tanh=use_tanh,
                 state_dependent_std=False,
                 fixed_std=actor_fixed_std,
@@ -75,6 +78,7 @@ def sac_config(
                 discrete=False,
                 n_layers=num_layers,
                 layer_size=hidden_size,
+                hidden_activation=hidden_activation,
                 use_tanh=use_tanh,
                 state_dependent_std=True,
             )
@@ -133,6 +137,7 @@ def sac_config(
             else None,
         },
         "replay_buffer_capacity": replay_buffer_capacity,
+        "hidden_activation": hidden_activation,
         "log_name": log_string,
         "total_steps": total_steps,
         "random_steps": random_steps,

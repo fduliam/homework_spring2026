@@ -1,5 +1,9 @@
+import os
 import sys
 from pathlib import Path
+
+# HW3 requires Python 3.10, which the 2026.10 image builder no longer supports.
+os.environ.setdefault("MODAL_IMAGE_BUILDER_VERSION", "2025.06")
 
 import modal
 
@@ -43,7 +47,7 @@ def load_gitignore_patterns() -> list[str]:
 
 
 # Build a container image with the project's dependencies using uv.
-image = modal.Image.debian_slim().apt_install("libgl1", "libglib2.0-0", "swig").uv_sync()
+image = modal.Image.debian_slim(python_version="3.10").apt_install("libgl1", "libglib2.0-0", "swig").uv_sync()
 # Copy .netrc for wandb logging.
 if NETRC_PATH.is_file():
     image = image.add_local_file(

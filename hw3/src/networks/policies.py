@@ -26,6 +26,7 @@ class MLPPolicy(nn.Module):
         use_tanh: bool = False,
         state_dependent_std: bool = False,
         fixed_std: Optional[float] = None,
+        hidden_activation: str = "tanh",
     ):
         super().__init__()
 
@@ -40,6 +41,7 @@ class MLPPolicy(nn.Module):
                 output_size=ac_dim,
                 n_layers=n_layers,
                 size=layer_size,
+                activation=hidden_activation,
             )
         else:
             if self.state_dependent_std:
@@ -49,6 +51,7 @@ class MLPPolicy(nn.Module):
                     output_size=2*ac_dim,
                     n_layers=n_layers,
                     size=layer_size,
+                    activation=hidden_activation,
                 )
             else:
                 self.net = ptu.build_mlp(
@@ -56,6 +59,7 @@ class MLPPolicy(nn.Module):
                     output_size=ac_dim,
                     n_layers=n_layers,
                     size=layer_size,
+                    activation=hidden_activation,
                 )
 
                 if self.fixed_std:
